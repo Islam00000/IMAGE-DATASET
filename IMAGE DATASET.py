@@ -13,11 +13,10 @@ import cv2
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
-from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_curve , auc 
 from sklearn.metrics import zero_one_loss
 import math 
-
-
+"""
 def process_image(image_path: str):
     img = Image.open(image_path)
     img = ImageOps.grayscale(img)
@@ -151,23 +150,15 @@ history = model.fit(
     validation_data=(x_val, y_val)
 ) 
 
-plt.plot(history.history['loss'])
-plt.title("model loss")
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train'],loc = "upper left")
+
+plt.plot(history.history["accuracy"])
+plt.title("model accuracy")
+plt.ylabel("accuracy")
+plt.xlabel("epoch")
+plt.legend(['train'],loc="upeer left")
 plt.show()
 
-
-y_pred=model.predict(x_test) 
-y_pred=np.argmax(y_pred, axis=1)
-Y_test=np.argmax(y_test, axis=1)    
-cm = confusion_matrix(Y_test,y_pred)
-plt.figure(figsize=(7,5))
-sn.heatmap(cm,annot=True)
-plt.xlabel("predict")
-plt.ylabel("truth")
-
+"""
 
 datadir = "H:\\Data sets\\images\\seg_train"
 catagories = ["buildings","forest"]
@@ -207,8 +198,25 @@ print("test data shape:",X_test.shape)
 model2 = SVC(C=20,kernel="linear",gamma="auto")
 model2.fit(X_train,y_train)
 print("___________________________________________________")
-print("The accuracy of SVC is :",math.ceil(100 * model2.score(X_test,y_test)))
+print("The accuracy of SVC is :",math.ceil(100*model2.score(X_test,y_test)),"%")
 
+
+
+y_pred2 = model2.predict(X_test).ravel()
+nn_fpr_keras, nn_tpr_keras, nn_thresholds_keras = roc_curve(y_test  , y_pred2)
+auc_keras = auc(nn_fpr_keras, nn_tpr_keras)
+plt.plot(nn_fpr_keras, nn_tpr_keras, marker='.', label='SVM' % auc_keras)
+plt.show()
+
+"""
+y_pred=model.predict(x_test) 
+y_pred=np.argmax(y_pred, axis=1)
+Y_test=np.argmax(y_test, axis=1)    
+cm = confusion_matrix(Y_test,y_pred)
+plt.figure(figsize=(7,5))
+sn.heatmap(cm,annot=True)
+plt.xlabel("predict")
+"""
 cm2 = confusion_matrix(y_test,model2.predict(X_test))
 plt.figure(figsize=(7,5))
 sn.heatmap(cm2,annot=True)
